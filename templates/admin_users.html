@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><h4>Registered Citizens ({{ rows|length }})</h4><div class="table-responsive"><table class="table bg-white align-middle">
+<tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Complaints</th><th>Joined</th><th></th></tr>
+{% for u in rows %}<tr><td>{{ u.id }}</td><td>{{ u.name }}</td><td>{{ u.email }}</td><td>{{ u.phone }}</td><td>{{ u.address or '-' }}</td><td>{{ u.complaints }}</td><td><small>{{ u.created_at }}</small></td>
+<td><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="uid" value="{{ u.id }}"><button class="btn btn-sm btn-outline-{{ 'danger' if u.active else 'success' }}">{{ 'Block' if u.active else 'Unblock' }}</button></form></td></tr>{% endfor %}</table></div></div>{% endblock %}

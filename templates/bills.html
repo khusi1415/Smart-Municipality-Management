@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><h4>Pending Payments</h4><div class="table-responsive"><table class="table bg-white align-middle">
+<tr><th>Bill</th><th>Property Ref</th><th>Amount</th><th>Due</th><th></th></tr>
+{% for b in pending %}<tr><td>{{ b.bill_type }}</td><td>{{ b.property_ref }}</td><td>{{ b.amount|money }}</td>
+<td>{{ b.due_date }}{% if b.due_date < today %} <span class="badge bg-danger">Overdue</span>{% endif %}</td><td><a class="btn btn-sm btn-success" href="{{ url_for('pay_bill', bid=b.id) }}">Pay Now</a></td></tr>
+{% else %}<tr><td colspan="5" class="text-center">No pending payments 🎉</td></tr>{% endfor %}</table></div>
+<h4 class="mt-4">Payment History</h4><div class="table-responsive"><table class="table bg-white align-middle">
+<tr><th>Bill</th><th>Ref</th><th>Amount</th><th>Paid on</th><th>Mode</th><th></th></tr>
+{% for b in history %}<tr><td>{{ b.bill_type }}</td><td>{{ b.property_ref }}</td><td>{{ b.amount|money }}</td><td>{{ b.paid_at }}</td><td>{{ b.payment_mode }}</td><td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('receipt', bid=b.id) }}">Receipt</a></td></tr>
+{% else %}<tr><td colspan="6" class="text-center">No payments yet.</td></tr>{% endfor %}</table></div></div>{% endblock %}

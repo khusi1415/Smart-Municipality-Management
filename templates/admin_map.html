@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><style>#bigmap{height:70vh}</style>{% endblock %}
+{% block content %}
+<div class="container mt-3"><h4>Complaint Map</h4>
+<div class="mb-2 small">{% for c in categories %}<span class="me-2"><span class="badge" style="background:{{ ['#6c757d','#dc3545','#fd7e14','#0dcaf0','#0d6efd','#795548','#198754','#212529'][loop.index0] }}">&nbsp;</span> {{ c }}</span>{% endfor %}</div>
+<div id="bigmap" class="map"></div></div>{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const items={{ items|tojson }}, cats={{ categories|tojson }}, cols=['#6c757d','#dc3545','#fd7e14','#0dcaf0','#0d6efd','#795548','#198754','#212529'];
+const map=L.map('bigmap').setView([{{ map_center[0] }},{{ map_center[1] }}],12);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+items.forEach(i=>{ const c=cols[cats.indexOf(i.category)]||'#000';
+ L.circleMarker([i.lat,i.lng],{radius:i.status==='Resolved'?5:9,color:c,fillColor:c,fillOpacity:i.status==='Resolved'?.3:.8})
+  .bindPopup('<b>#'+i.id+' '+i.title+'</b><br>'+i.category+'<br>'+i.status+' · '+i.priority+'<br><a href="/admin/complaint/'+i.id+'">Manage</a>').addTo(map); });
+</script>{% endblock %}

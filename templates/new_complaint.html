@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block content %}
+<div class="container" style="max-width:820px"><div class="card p-4 mt-3"><h4>Report a Problem</h4>
+<form method="post" enctype="multipart/form-data" id="cform"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+ <input type="hidden" name="lat" id="lat"><input type="hidden" name="lng" id="lng">
+ <input class="form-control mb-2" name="title" id="title" placeholder="Issue title (e.g. Big pothole near market)" required>
+ <textarea class="form-control mb-2" name="description" id="desc" rows="3" placeholder="Describe the problem" required></textarea>
+ <div class="row g-2 mb-2">
+  <div class="col-md-6"><label class="small text-muted">📷 Photo (PNG/JPG, max 3 MB) – AI will analyse it</label><input class="form-control" type="file" name="image" id="image" accept="image/*"></div>
+  <div class="col-md-6"><label class="small text-muted">🎥 Video (optional, MP4/WEBM, max 12 MB)</label><input class="form-control" type="file" name="video" accept="video/mp4,video/webm"></div></div>
+ <div id="aibox" class="alert alert-secondary py-2 d-none"></div>
+ <div class="row g-2 mb-2"><div class="col-md-7"><label class="small text-muted">Category</label>
+  <select class="form-select" name="category" id="cat"><option value="auto">🤖 Auto-detect (AI)</option>{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></div></div>
+ <label class="small text-muted">📍 Location – click on the map or use GPS</label>
+ <div class="mb-2"><button type="button" class="btn btn-outline-primary btn-sm" id="gps">Use my current location</button> <span id="coords" class="small text-muted ms-2">No location selected</span></div>
+ <div id="map" class="map mb-2"></div>
+ <input class="form-control mb-3" name="location" placeholder="Landmark / Ward / Street" required>
+ <button class="btn btn-primary w-100">Submit Complaint</button></form></div></div>{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map=L.map('map').setView([{{ map_center[0] }},{{ map_center[1] }}],13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+let marker=null;
+function setPos(lat,lng){ if(marker)marker.setLatLng([lat,lng]); else marker=L.marker([lat,lng]).addTo(map);
+ document.getElementById('lat').value=lat.toFixed(6); document.getElementById('lng').value=lng.toFixed(6);
+ document.getElementById('coords').textContent='Selected: '+lat.toFixed(5)+', '+lng.toFixed(5); }
+map.on('click',e=>setPos(e.latlng.lat,e.latlng.lng));
+document.getElementById('gps').onclick=()=>{ if(!navigator.geolocation){alert('GPS not supported');return;}
+ navigator.geolocation.getCurrentPosition(p=>{setPos(p.coords.latitude,p.coords.longitude);map.setView([p.coords.latitude,p.coords.longitude],16);},()=>alert('Could not get location. Click on the map instead.')); };
+// live AI analysis
+let timer=null;
+async function analyse(){
+ const fd=new FormData(); fd.append('csrf_token','{{ csrf_token() }}');
+ fd.append('text',document.getElementById('title').value+'. '+document.getElementById('desc').value);
+ const f=document.getElementById('image').files[0]; if(f)fd.append('image',f);
+ const box=document.getElementById('aibox');
+ try{ const r=await fetch('{{ url_for("api_analyze") }}',{method:'POST',body:fd}); const d=await r.json();
+  if(d.error){box.className='alert alert-danger py-2';box.textContent=d.error;return;}
+  box.className='alert alert-success py-2';
+  box.innerHTML='🤖 <b>AI suggestion:</b> '+d.category+(d.source!=='none'?' ('+Math.round(d.confidence*100)+'% via '+d.source+')':'')+' &rarr; '+d.department+' | Priority: <b>'+d.priority+'</b> <small class="text-muted">('+d.reason+')</small>';
+ }catch(e){} }
+function later(){clearTimeout(timer);timer=setTimeout(analyse,700);}
+['title','desc'].forEach(id=>document.getElementById(id).addEventListener('input',later));
+document.getElementById('image').addEventListener('change',analyse);
+document.getElementById('cform').addEventListener('submit',e=>{ if(!document.getElementById('lat').value){e.preventDefault();alert('Please select the location on the map or use GPS.');}});
+</script>{% endblock %}

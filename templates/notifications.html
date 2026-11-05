@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3" style="max-width:760px"><div class="d-flex justify-content-between"><h4>Notifications</h4>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-secondary">Mark all read</button></form></div>
+{% for n in rows %}<div class="card mb-2 {{ '' if n.is_read else 'border-start border-primary border-4' }}"><div class="card-body py-2">
+{% if n.link %}<a href="{{ n.link }}" class="text-decoration-none">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}<br><small class="text-muted">{{ n.created_at }}</small></div></div>
+{% else %}<p class="text-muted mt-3">No notifications.</p>{% endfor %}</div>{% endblock %}

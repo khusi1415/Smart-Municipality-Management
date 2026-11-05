@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% block content %}
+<div class="hero text-center"><div class="container">
+ <h1 class="display-5 fw-bold">Smart Municipality Management &amp; Citizen Service System</h1>
+ <p class="lead">Report a problem with a photo and location. Our AI detects the issue, sets priority and routes it to the right department.</p>
+ <a href="{{ url_for('new_complaint') }}" class="btn btn-light btn-lg me-2">Report a Problem</a>
+ <a href="{{ url_for('track') }}" class="btn btn-outline-light btn-lg">Track Complaint</a></div></div>
+<div class="container mt-4"><div class="row text-center g-3">
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.total }}</h3>Complaints</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.resolved }}</h3>Resolved</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.depts }}</h3>Departments</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.citizens }}</h3>Citizens</div></div></div>
+<div class="row mt-4 g-3 text-center">
+ <div class="col-md-3"><div class="card p-3 h-100"><h5>🤖 AI Detection</h5><p class="mb-0 small">Photo and text analysed to find category and priority.</p></div></div>
+ <div class="col-md-3"><div class="card p-3 h-100"><h5>📍 Map Location</h5><p class="mb-0 small">GPS-based location; nearby duplicate reports are grouped.</p></div></div>
+ <div class="col-md-3"><div class="card p-3 h-100"><h5>👷 Field Staff</h5><p class="mb-0 small">Employees accept, start and complete work; admin verifies.</p></div></div>
+ <div class="col-md-3"><div class="card p-3 h-100"><h5>💳 Tax &amp; Bills</h5><p class="mb-0 small">Pay property and water tax, download receipts.</p></div></div></div>
+<h4 class="mt-5">Latest Notices</h4>
+{% for n in notices %}<div class="card mb-2"><div class="card-body"><h6>{{ n.title }}</h6><p class="mb-0">{{ n.body }}</p><small class="text-muted">{{ n.created_at }}</small></div></div>{% endfor %}
+</div>{% endblock %}

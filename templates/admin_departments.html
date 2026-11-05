@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><div class="row g-3"><div class="col-md-4"><div class="card p-3"><h5>Add Department</h5>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input class="form-control mb-2" name="name" placeholder="Department name" required><button class="btn btn-primary w-100">Add</button></form></div></div>
+<div class="col-md-8"><h5>Departments</h5><table class="table bg-white"><tr><th>Department</th><th>Employees</th><th>Complaints</th><th>Resolved</th></tr>
+{% for d in rows %}<tr><td>{{ d.name }}</td><td>{{ d.emps }}</td><td>{{ d.total }}</td><td>{{ d.resolved }}</td></tr>{% endfor %}</table></div></div></div>{% endblock %}

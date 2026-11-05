@@ -1,0 +1,40 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><div class="d-flex justify-content-between"><h4>Municipality Dashboard</h4><a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_csv') }}">⬇ Export CSV</a></div>
+<div class="row g-3 my-1">
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h3>{{ kpi.total }}</h3>Total Complaints</div></div>
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h3>{{ kpi.pending }}</h3>Pending</div></div>
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h3>{{ kpi.active }}</h3>In Progress</div></div>
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h3>{{ kpi.resolved }}</h3>Resolved</div></div>
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h3>{{ kpi.service_level|pct }}</h3>Service Level</div></div>
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h3>{{ '%.1f ★'|format(kpi.avg_rating) if kpi.avg_rating is not none else '-' }}</h3>Feedback Rating</div></div></div>
+<div class="row g-3 mb-1">
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h5>{{ '%.1f'|format(kpi.avg_days) if kpi.avg_days is not none else '-' }}</h5>Avg Days to Resolve</div></div>
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h5>{{ kpi.duplicates }}</h5>Duplicate Reports</div></div>
+ <div class="col-6 col-md-2"><div class="card kpi p-3"><h5>{{ kpi.citizens }}</h5>Citizens</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h5>{{ kpi.collected|money }}</h5>Tax Collected</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h5>{{ kpi.outstanding|money }}</h5>Outstanding</div></div></div>
+<div class="row g-3 mt-1">
+ <div class="col-md-4"><div class="card p-3"><h6>Complaints by Category</h6><canvas id="catChart"></canvas></div></div>
+ <div class="col-md-5"><div class="card p-3"><h6>Monthly Trend</h6><canvas id="trendChart"></canvas></div></div>
+ <div class="col-md-3"><div class="card p-3"><h6>Recent Feedback</h6>{% for f in feedback %}<div class="small mb-2">{{ '⭐' * f.rating }} <b>{{ f.name }}</b> (#{{ f.id }})<br>{{ f.feedback or '' }}</div>{% else %}<small class="text-muted">No feedback yet.</small>{% endfor %}</div></div></div>
+<div class="card p-3 mt-3"><h6>Publish Notice (sent to all citizens)</h6><form method="post" action="{{ url_for('add_notice') }}" class="row g-2"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+ <div class="col-md-3"><input class="form-control" name="title" placeholder="Title" required></div><div class="col-md-7"><input class="form-control" name="body" placeholder="Notice text" required></div><div class="col-md-2"><button class="btn btn-success w-100">Publish</button></div></form></div>
+<h5 class="mt-4">Complaints ({{ total }})</h5>
+<form class="row g-2 mb-2" method="get">
+ <div class="col-md-4"><input class="form-control" name="q" value="{{ q }}" placeholder="Search ID, title, location, citizen"></div>
+ <div class="col-md-3"><select class="form-select" name="status"><option value="">All status</option>{% for s in statuses %}<option {{ 'selected' if s==status }}>{{ s }}</option>{% endfor %}</select></div>
+ <div class="col-md-3"><select class="form-select" name="category"><option value="">All categories</option>{% for c in categories %}<option {{ 'selected' if c==cat }}>{{ c }}</option>{% endfor %}</select></div>
+ <div class="col-md-2"><button class="btn btn-primary w-100">Filter</button></div></form>
+<div class="table-responsive"><table class="table table-hover bg-white align-middle">
+<tr><th>ID</th><th>Citizen</th><th>Category</th><th>Title</th><th>Priority</th><th>Status</th><th>Dept</th><th></th></tr>
+{% for c in complaints %}<tr><td>#{{ c.id }}</td><td>{{ c.citizen }}</td><td>{{ c.category }}</td><td>{{ c.title }}{% if c.duplicate_of %} <span class="badge bg-warning text-dark">Dup of #{{ c.duplicate_of }}</span>{% endif %}</td><td>{{ c.priority|badge }}</td><td>{{ c.status|badge }}</td><td>{{ c.department or '-' }}</td>
+<td><a class="btn btn-sm btn-primary" href="{{ url_for('admin_complaint', cid=c.id) }}">Manage</a></td></tr>
+{% else %}<tr><td colspan="8" class="text-center">No complaints found.</td></tr>{% endfor %}</table></div>
+{% if pages>1 %}<nav><ul class="pagination">{% for p in range(1,pages+1) %}<li class="page-item {{ 'active' if p==page }}"><a class="page-link" href="{{ url_for('admin', q=q, status=status, category=cat, page=p) }}">{{ p }}</a></li>{% endfor %}</ul></nav>{% endif %}
+</div>{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:{{ by_cat|map(attribute=0)|list|tojson }},datasets:[{data:{{ by_cat|map(attribute=1)|list|tojson }}}]},options:{plugins:{legend:{position:'bottom'}}}});
+new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:{{ trend|map(attribute=0)|list|tojson }},datasets:[{label:'Complaints',data:{{ trend|map(attribute=1)|list|tojson }},borderColor:'#0d6efd',tension:.3}]},options:{plugins:{legend:{display:false}}}});
+</script>{% endblock %}

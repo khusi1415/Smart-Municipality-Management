@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><div class="row g-3">
+<div class="col-md-6"><div class="card p-3"><h5>My Profile</h5>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="profile">
+ <label class="small text-muted">Email (cannot change)</label><input class="form-control mb-2" value="{{ u.email }}" disabled>
+ <input class="form-control mb-2" name="name" value="{{ u.name }}" required><input class="form-control mb-2" name="phone" value="{{ u.phone }}" pattern="\d{10}" required>
+ <input class="form-control mb-3" name="address" value="{{ u.address or '' }}" placeholder="Address"><button class="btn btn-primary">Save</button></form></div></div>
+<div class="col-md-6"><div class="card p-3"><h5>Change Password</h5>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="password">
+ <input class="form-control mb-2" type="password" name="current" placeholder="Current password" required>
+ <input class="form-control mb-3" type="password" name="new" placeholder="New password (min 6)" minlength="6" required><button class="btn btn-warning">Change Password</button></form></div></div></div></div>{% endblock %}

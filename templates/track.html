@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container" style="max-width:680px"><div class="card p-4 mt-3"><h4>Track Complaint</h4>
+<form method="post" class="d-flex gap-2"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input class="form-control" name="cid" placeholder="Enter Complaint ID (e.g. 12)" required><button class="btn btn-primary">Track</button></form>
+{% if c %}<hr><h5>#{{ c.id }} — {{ c.title }} {{ c.status|badge }}</h5>
+<p class="mb-2">Category: {{ c.category }} | Priority: {{ c.priority|badge }}<br>Department: {{ c.department or '-' }}<br>Remarks: {{ c.remarks or '-' }}</p>
+<div class="timeline">{% for h in hist %}<div class="t"><b>{{ h.status or 'Update' }}</b> <small class="text-muted">{{ h.created_at }}</small><br>{{ h.note }}</div>{% endfor %}</div>{% endif %}
+</div></div>{% endblock %}

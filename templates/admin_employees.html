@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><div class="row g-3"><div class="col-md-4"><div class="card p-3"><h5>Add Employee</h5>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+ <input class="form-control mb-2" name="name" placeholder="Full name" required><input class="form-control mb-2" type="email" name="email" placeholder="Login email" required>
+ <input class="form-control mb-2" name="phone" placeholder="10-digit phone" pattern="\d{10}" required>
+ <select class="form-select mb-2" name="department">{% for d in depts %}<option>{{ d.name }}</option>{% endfor %}</select>
+ <input class="form-control mb-3" type="password" name="password" placeholder="Password (min 6)" minlength="6" required><button class="btn btn-primary w-100">Create</button></form></div></div>
+<div class="col-md-8"><h5>Employees</h5><div class="table-responsive"><table class="table bg-white align-middle">
+<tr><th>Name</th><th>Email</th><th>Department</th><th>Tasks</th><th>Done</th><th></th></tr>
+{% for e in rows %}<tr><td>{{ e.name }}</td><td>{{ e.email }}</td><td>{{ e.department }}</td><td>{{ e.tasks }}</td><td>{{ e.done }}</td>
+<td><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="toggle"><input type="hidden" name="uid" value="{{ e.id }}">
+<button class="btn btn-sm btn-outline-{{ 'danger' if e.active else 'success' }}">{{ 'Deactivate' if e.active else 'Activate' }}</button></form></td></tr>
+{% else %}<tr><td colspan="6" class="text-center">No employees.</td></tr>{% endfor %}</table></div></div></div></div>{% endblock %}

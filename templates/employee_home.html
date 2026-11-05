@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><h4>👷 {{ me.name }} <small class="text-muted">— {{ me.department }}</small></h4>
+<div class="row g-3 my-1">
+ <div class="col-4"><div class="card kpi p-3"><h3>{{ stats.new }}</h3>New Tasks</div></div>
+ <div class="col-4"><div class="card kpi p-3"><h3>{{ stats.going }}</h3>In Work</div></div>
+ <div class="col-4"><div class="card kpi p-3"><h3>{{ stats.done }}</h3>Completed</div></div></div>
+<div class="table-responsive mt-3"><table class="table bg-white align-middle">
+<tr><th>ID</th><th>Problem</th><th>Location</th><th>Priority</th><th>Status</th><th>Action</th></tr>
+{% for r in rows %}<tr><td>#{{ r.id }}</td><td>{{ r.title }}<br><small class="text-muted">{{ r.category }}</small></td><td>{{ r.location }}<br><a target="_blank" class="small" href="https://www.google.com/maps?q={{ r.lat }},{{ r.lng }}">Open map</a></td>
+<td>{{ r.priority|badge }}</td><td>{{ r.status|badge }}</td><td>
+{% set nxt = {'Assigned':('accept','Accept Task'),'Accepted':('start','Start Work'),'In Progress':('complete','Mark Completed')} %}
+{% if r.status in nxt %}<form method="post" action="{{ url_for('employee_action', cid=r.id) }}" class="d-flex gap-1"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="action" value="{{ nxt[r.status][0] }}"><input class="form-control form-control-sm" name="note" placeholder="Note (optional)"><button class="btn btn-sm btn-primary text-nowrap">{{ nxt[r.status][1] }}</button></form>
+{% else %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('complaint_detail', cid=r.id) }}">View</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan="6" class="text-center">No tasks assigned yet.</td></tr>{% endfor %}</table></div></div>{% endblock %}

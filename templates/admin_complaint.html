@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container" style="max-width:900px"><div class="card p-4 mt-3">
+<h5>Complaint #{{ c.id }} — {{ c.title }} {{ c.priority|badge }} {{ c.status|badge }}</h5>
+<p class="text-muted">{{ c.citizen }} ({{ c.phone }}) • {{ c.category }} • {{ c.location }} • {{ c.created_at }}</p>
+<p class="border rounded p-2 bg-light">{{ c.description }}</p>
+{% if c.image %}<img src="{{ url_for('static', filename='uploads/' ~ c.image) }}" class="img-fluid rounded mb-2" style="max-height:260px">{% endif %}
+{% if c.video %}<video controls class="w-100 rounded mb-2" style="max-height:260px"><source src="{{ url_for('static', filename='uploads/' ~ c.video) }}"></video>{% endif %}
+<div class="small mb-2">🤖 AI: <b>{{ c.ai_category or '-' }}</b>{% if c.ai_source and c.ai_source!='none' %} ({{ c.ai_confidence|pct }} via {{ c.ai_source }}){% endif %} &nbsp;|&nbsp; Priority reason: {{ c.priority_reason }} &nbsp;|&nbsp; 📍 <a target="_blank" href="https://www.openstreetmap.org/?mlat={{ c.lat }}&mlon={{ c.lng }}#map=17/{{ c.lat }}/{{ c.lng }}">map</a></div>
+{% if dups|length>1 %}<div class="alert alert-warning py-2">⚠️ Possible duplicate group: {% for d in dups %}<a href="{{ url_for('admin_complaint', cid=d.id) }}">#{{ d.id }}</a> {% endfor %}</div>{% endif %}
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+ <div class="row g-2"><div class="col-md-6"><label class="small">Assign employee ({{ c.department }} first)</label>
+  <select class="form-select" name="assigned_to"><option value="">— {{ 'Currently: ' ~ c.employee if c.employee else 'not assigned' }} —</option>{% for e in emps %}<option value="{{ e.id }}">{{ e.name }} ({{ e.department }})</option>{% endfor %}</select></div>
+ <div class="col-md-6"><label class="small">Status (current: {{ c.status }}) — employee handles Accepted/Completed; admin verifies → Resolved</label>
+  <select class="form-select" name="status">{% if c.status not in statuses %}<option selected>{{ c.status }}</option>{% endif %}{% for s in statuses %}<option {{ 'selected' if s==c.status }}>{{ s }}</option>{% endfor %}</select></div></div>
+ <label class="small mt-2">Remarks (visible to citizen)</label><textarea class="form-control mb-3" name="remarks" rows="2">{{ c.remarks or '' }}</textarea>
+ <button class="btn btn-primary">Update</button> <a class="btn btn-secondary" href="{{ url_for('admin') }}">Back</a></form>
+<hr><h6>History</h6><div class="timeline">{% for h in hist %}<div class="t"><b>{{ h.status or 'Update' }}</b> <small class="text-muted">{{ h.created_at }}</small><br>{{ h.note }}</div>{% endfor %}</div>
+{% if c.rating %}<p class="mt-2">Citizen rating: {{ '⭐' * c.rating }} {{ c.feedback or '' }}</p>{% endif %}
+</div></div>{% endblock %}

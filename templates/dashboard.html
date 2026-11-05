@@ -1,0 +1,14 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><h4>Welcome, {{ session.name }}</h4>
+<div class="row g-3 my-1">
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.total }}</h3>My Complaints</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.open }}</h3>In Process</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.resolved }}</h3>Resolved</div></div>
+ <div class="col-6 col-md-3"><div class="card kpi p-3"><h3>{{ stats.due|money }}</h3>Tax / Bills Due</div></div></div>
+{% for n in notices %}<div class="alert alert-info mt-3 mb-0 py-2">📢 <b>{{ n.title }}:</b> {{ n.body }}</div>{% endfor %}
+<div class="d-flex justify-content-between mt-4"><h5>Previous Complaints</h5><a class="btn btn-primary btn-sm" href="{{ url_for('new_complaint') }}">+ New Complaint</a></div>
+<div class="table-responsive"><table class="table table-hover bg-white mt-2 align-middle">
+<tr><th>ID</th><th>Category</th><th>Title</th><th>Priority</th><th>Status</th><th>Dept</th><th></th></tr>
+{% for c in complaints %}<tr><td>#{{ c.id }}</td><td>{{ c.category }}</td><td>{{ c.title }}</td><td>{{ c.priority|badge }}</td><td>{{ c.status|badge }}</td><td>{{ c.department or '-' }}</td>
+<td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('complaint_detail', cid=c.id) }}">View</a></td></tr>
+{% else %}<tr><td colspan="7" class="text-center">No complaints yet.</td></tr>{% endfor %}</table></div></div>{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container" style="max-width:640px"><div class="card p-4 mt-3"><h4 class="text-center">Municipal Payment Receipt</h4><hr>
+<table class="table table-borderless mb-0">
+<tr><td>Receipt / Txn ID</td><td><b>{{ b.txn_id }}</b></td></tr><tr><td>Citizen</td><td>{{ b.citizen }}</td></tr><tr><td>Address</td><td>{{ b.address or '-' }}</td></tr>
+<tr><td>Bill type</td><td>{{ b.bill_type }}</td></tr><tr><td>Property Ref</td><td>{{ b.property_ref }}</td></tr>
+<tr><td>Amount paid</td><td><b>{{ b.amount|money }}</b></td></tr><tr><td>Payment mode</td><td>{{ b.payment_mode }}</td></tr><tr><td>Paid on</td><td>{{ b.paid_at }}</td></tr></table>
+<hr><p class="text-center text-muted small mb-2">This is a computer-generated receipt.</p>
+<button class="btn btn-primary no-print" onclick="window.print()">🖨️ Print / Save PDF</button></div></div>{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container mt-3"><div class="d-flex justify-content-between"><h4>Municipality Report — {{ today }}</h4>
+<div class="no-print"><a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_csv') }}">⬇ CSV</a> <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Print / PDF</button></div></div>
+<h6 class="mt-3">Department-wise Performance</h6><table class="table table-sm bg-white">
+<tr><th>Department</th><th>Total</th><th>Resolved</th><th>In Progress</th><th>Avg days to resolve</th><th>Avg rating</th></tr>
+{% for d in dept %}<tr><td>{{ d.department or 'Unassigned' }}</td><td>{{ d.total }}</td><td>{{ d.resolved or 0 }}</td><td>{{ d.active or 0 }}</td><td>{{ '%.1f'|format(d.avg_days) if d.avg_days is not none else '-' }}</td><td>{{ '%.1f'|format(d.rating) if d.rating is not none else '-' }}</td></tr>{% endfor %}</table>
+<h6 class="mt-3">Category-wise</h6><table class="table table-sm bg-white"><tr><th>Category</th><th>Total</th><th>Resolved</th></tr>
+{% for c in cat %}<tr><td>{{ c.category }}</td><td>{{ c.total }}</td><td>{{ c.resolved or 0 }}</td></tr>{% endfor %}</table>
+<h6 class="mt-3">Priority Distribution</h6><p>{% for p in pri %}{{ p.priority|badge }} {{ p.n }} &nbsp; {% endfor %}</p>
+<h6 class="mt-3">AI Summary</h6><p>AI analysed {{ ai.n or 0 }} complaints; category chosen by citizen matched the AI suggestion in {{ ai.agree or 0 }} of them.</p></div>{% endblock %}

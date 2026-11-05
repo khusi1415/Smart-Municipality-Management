@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block content %}
+<div class="container" style="max-width:520px"><div class="card p-4 mt-3"><h5>Pay {{ b.bill_type }}</h5>
+<p>Property Ref: {{ b.property_ref }}<br>Due date: {{ b.due_date }}<br>Amount payable: <b class="fs-4">{{ b.amount|money }}</b></p>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label class="form-label">Payment mode</label>
+ <select class="form-select mb-3" name="mode">{% for m in modes %}<option>{{ m }}</option>{% endfor %}</select><button class="btn btn-success w-100">Pay {{ b.amount|money }}</button></form>
+ <small class="text-muted mt-2">Simulated payment gateway for academic demonstration. No real money is charged.</small></div></div>{% endblock %}
